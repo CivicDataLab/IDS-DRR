@@ -4,3 +4,6 @@
 [submodule "IDS-DRR-Data-Management"]
 	path = IDS-DRR-Data-Management
 	url = git@github.com:CivicDataLab/IDS-DRR-Data-Management.git
+[submodule "IDS-DRR-QA-Automation"]
+	path = IDS-DRR-QA-Automation
+	url = git@github.com:CivicDataLab/IDS-DRR-QA-Automation.git

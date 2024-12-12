@@ -1,5 +1,5 @@
-[submodule "IDS-DRR-Frontend"]
-	path = IDS-DRR-Frontend
+[submodule "platform/frontend"]
+	path = platform/frontend
 	url = git@github.com:CivicDataLab/IDS-DRR-Frontend.git
 [submodule "IDS-DRR-Data-Management"]
 	path = IDS-DRR-Data-Management

@@ -1,9 +1,15 @@
-[submodule "IDS-DRR-Frontend"]
-	path = IDS-DRR-Frontend
+[submodule "platform/frontend"]
+	path = platform/frontend
 	url = git@github.com:CivicDataLab/IDS-DRR-Frontend.git
-[submodule "IDS-DRR-Data-Management"]
-	path = IDS-DRR-Data-Management
+[submodule "platform/data-management"]
+	path = platform/data-management
 	url = git@github.com:CivicDataLab/IDS-DRR-Data-Management.git
-[submodule "IDS-DRR-QA-Automation"]
-	path = IDS-DRR-QA-Automation
+[submodule "platform/qa-automation"]
+	path = platform/qa-automation
 	url = git@github.com:CivicDataLab/IDS-DRR-QA-Automation.git
+[submodule "data/pipeline"]
+	path = data/pipeline
+	url = git@github.com:CivicDataLab/IDS-DRR-Pipeline.git
+[submodule "risk-models/assam"]
+	path = risk-models/assam
+	url = git@github.com:CivicDataLab/IDS-DRR-Assam-Risk-Model.git

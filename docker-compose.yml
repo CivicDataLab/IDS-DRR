@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgis/postgis:14-3.5
+    restart: always
+    container_name: "context_layer_PG"
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "54321:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+  backend:
+    build:
+      context: ./platform/data-management
+    restart: always
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./platform/data-management:/code
+    ports:
+      - 8000:8000
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+  frontend:
+    container_name: frontend
+    build:
+      context: ./platform/frontend
+      target: dev
+    restart: always
+    command: yarn dev
+    env_file:
+      - ./platform/.env
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./platform/frontend:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - 3000:3000
+    depends_on:
+      - backend
+volumes:
+  postgres_data:
+    name: postgres_data

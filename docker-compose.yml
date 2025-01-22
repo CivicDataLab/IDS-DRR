@@ -38,7 +38,7 @@ services:
     restart: always
     command: yarn dev
     env_file:
-      - ./platform/.env
+      - ./platform/frontend/.env
     environment:
       - NODE_ENV=development
     volumes:

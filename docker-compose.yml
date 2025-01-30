@@ -4,9 +4,9 @@ services:
     restart: always
     container_name: "context_layer_PG"
     environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_NAME=${POSTGRES_NAME}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "54321:5432"
     volumes:
@@ -18,20 +18,23 @@ services:
       start_period: 30s
       timeout: 10s
   backend:
+    container_name: ids_backend
     build:
       context: ./platform/data-management
     restart: always
     command: python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - ./platform/data-management/.env
     volumes:
       - ./platform/data-management:/code
     ports:
-      - 8000:8000
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
         restart: true
   frontend:
-    container_name: frontend
+    container_name: ids_frontend
     build:
       context: ./platform/frontend
       target: dev
@@ -46,7 +49,7 @@ services:
       - /app/node_modules
       - /app/.next
     ports:
-      - 3000:3000
+      - "3000:3000"
     depends_on:
       - backend
 volumes:

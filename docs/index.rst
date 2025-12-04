@@ -22,6 +22,15 @@ Welcome to the documentation for the Intelligent Data Solution for Disaster Risk
 
    architecture/overview
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Platform
+
+   platform/index
+   platform/frontend
+   platform/data-management
+   platform/qa-automation
+
 
 Indices and tables
 ==================

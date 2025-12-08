@@ -1,5 +1,7 @@
 # About IDS-DRR
 
+[![Documentation Status](https://readthedocs.org/projects/ids-drr/badge/?version=latest)](https://ids-drr.readthedocs.io/en/latest/?badge=latest)
+
 Intelligent Data Solution for Disaster Risk Reduction (IDS-DRR) is an open-source platform that helps state-level and district-level Disaster Management Authorities to make timely data-driven decisions, prioritise expenditure of public funds and conduct public procurement in a manner that strengthens long-term disaster risk reduction and protects the most vulnerable people from the adverse effects of extreme weather events and climate change.
 In this platform, we bring together diverse high-value datasets from satellite, environmental, social, economic, demographic, infrastructure, loss & damages to data regarding government response to derive timely insights.
 

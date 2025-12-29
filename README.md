@@ -6,9 +6,11 @@ Intelligent Data Solution for Disaster Risk Reduction (IDS-DRR) is an open-sourc
 In this platform, we bring together diverse high-value datasets from satellite, environmental, social, economic, demographic, infrastructure, loss & damages to data regarding government response to derive timely insights.
 
 ## Partners
+
 This 4-year project led by CivicDataLab & Open Contracting Partnership is planned to improve disaster risk reduction processes & practices in the state of Assam. It is supported by The Rockefeller Foundation.
 
 ## System Architecture
+
 This project involves developing a comprehensive data management and analytics system with the following steps:
 
 Identify: Determine required data, sources, and variables.

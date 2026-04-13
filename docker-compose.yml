@@ -25,7 +25,7 @@ services:
     volumes:
       - ./platform/data-management:/code
     ports:
-      - 8000:8000
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
@@ -46,7 +46,7 @@ services:
       - /app/node_modules
       - /app/.next
     ports:
-      - 3000:3000
+      - "3000:3000"
     depends_on:
       - backend
 volumes:

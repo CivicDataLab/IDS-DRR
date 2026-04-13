@@ -1,6 +1,7 @@
 services:
   db:
     image: postgis/postgis:14-3.5
+    platform: linux/amd64
     restart: always
     container_name: "context_layer_PG"
     environment:

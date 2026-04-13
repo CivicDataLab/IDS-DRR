@@ -43,6 +43,9 @@ services:
       - ./platform/data-management:/code
     ports:
       - "8000:8000"
+    env_file:
+      - path: ./platform/data-management/.env
+        required: false
     environment:
       - POSTGRES_NAME=${POSTGRES_NAME:-postgres}
       - POSTGRES_USER=${POSTGRES_USER:-postgres}

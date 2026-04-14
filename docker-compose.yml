@@ -68,7 +68,8 @@ services:
     restart: always
     command: npm run dev
     env_file:
-      - ./platform/frontend/.env
+      - path: ./platform/frontend/.env
+        required: false
     environment:
       - NODE_ENV=development
     volumes:

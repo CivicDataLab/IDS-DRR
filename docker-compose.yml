@@ -72,6 +72,8 @@ services:
         required: false
     environment:
       - NODE_ENV=development
+      - DATA_MANAGEMENT_LAYER_URL=http://backend:8000
+      - NEXT_PUBLIC_DATA_MANAGEMENT_LAYER_URL=http://localhost:8000
     volumes:
       - ./platform/frontend:/app
       - /app/node_modules

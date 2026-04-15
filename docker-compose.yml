@@ -56,6 +56,12 @@ services:
       - WHITELIST_INDICATORS=topsis-score
       - SECRET_KEY=${SECRET_KEY:-!!!SECRET_KEY!!!}
       - ALLOWED_HOSTS=backend
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('localhost', 8000), timeout=2).close()"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     depends_on:
       db:
         condition: service_healthy
@@ -84,7 +90,8 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 volumes:
   postgres_data:
     name: postgres_data

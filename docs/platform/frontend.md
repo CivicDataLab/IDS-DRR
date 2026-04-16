@@ -83,11 +83,12 @@ Create a `.env.local` file to override any value (e.g. to point at production or
 | `SITE_URL` | Public site URL, used for `<meta>` tags (`og:url`, `og:image`, etc.), `<link>` tags (manifest, icons), and sitemap generation. Defaults to `http://localhost:3000` in development. | `https://drr.open-contracting.in/en` |
 | `NEXT_PUBLIC_TIME_PERIOD` | Fallback time period (e.g. `2024_08`) used when the API doesn't return one. If unset, the app uses the latest available time period from the API when possible. | `2024_08` |
 
-### Google
+### Analytics
 
 | Variable | Description |
 |----------|-------------|
 | `NEXT_PUBLIC_GOOGLE_ANALYTICS_APP_ID` | [Google Analytics](https://analytics.google.com/) measurement ID. If unset, the Google Analytics script is not loaded. |
+| `NEXT_PUBLIC_HOTJAR_ID` | [Hotjar](https://www.hotjar.com/) site ID. If unset, the Hotjar script is not loaded. |
 | `GOOGLE_SITE_VERIFICATION` | [Google Search Console](https://search.google.com/search-console) verification token. Rendered as a `<meta>` tag. |
 
 ### Sentry

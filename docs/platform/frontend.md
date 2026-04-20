@@ -46,13 +46,7 @@ The following dependencies must be available globally on your system:
 3. Install the dependencies:
 
    ```bash
-   npm install --legacy-peer-deps
-   ```
-
-4. Create your local environment configuration from the sample file:
-
-   ```bash
-   cp env.sample .env.local
+   npm install --force
    ```
 
 ## Usage
@@ -62,6 +56,55 @@ After completing the installation steps, run the project locally:
 ```bash
 npm run dev
 ```
+
+No `.env` file is required for local development. The included `.env.development` file contains:
+
+```
+DATA_MANAGEMENT_LAYER_URL="http://localhost:8000"
+NEXT_PUBLIC_DATA_MANAGEMENT_LAYER_URL="http://localhost:8000"
+BACKEND_URL=
+NEXT_PUBLIC_BACKEND_URL=
+```
+
+The first two point to the [Data Management API](data-management.md), which serves analytics maps, risk scores, and indicators.
+
+The last two point to the [DataSpace Backend](https://github.com/CivicDataLab/DataSpaceBackend), which serves the datasets catalog and search. DataSpace is optional.
+
+## Environment Variables
+
+Create a `.env.local` file to override any value (e.g. to point at production or staging backends).
+
+| Variable | Description | Example |
+|----------|-------------|-----------------|
+| `DATA_MANAGEMENT_LAYER_URL` | Data Management API URL (server-side) | `https://drr.backend.open-contracting.in` |
+| `NEXT_PUBLIC_DATA_MANAGEMENT_LAYER_URL` | Data Management API URL (client-side) | `https://drr.backend.open-contracting.in` |
+| `BACKEND_URL` | DataSpace API URL (server-side) | `https://api.dataspace.open-contracting.in` |
+| `NEXT_PUBLIC_BACKEND_URL` | DataSpace API URL (client-side) | `https://api.dataspace.open-contracting.in` |
+| `SITE_URL` | Public site URL, used for `<meta>` tags (`og:url`, `og:image`, etc.), `<link>` tags (manifest, icons), and sitemap generation. Defaults to `http://localhost:3000` in development. | `https://drr.open-contracting.in/en` |
+| `NEXT_PUBLIC_TIME_PERIOD` | Fallback time period (e.g. `2024_08`) used when the API doesn't return one. If unset, the app uses the latest available time period from the API when possible. | `2024_08` |
+
+### Analytics
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_GOOGLE_ANALYTICS_APP_ID` | [Google Analytics](https://analytics.google.com/) measurement ID. If unset, the Google Analytics script is not loaded. |
+| `NEXT_PUBLIC_HOTJAR_ID` | [Hotjar](https://www.hotjar.com/) site ID. If unset, the Hotjar script is not loaded. |
+| `GOOGLE_SITE_VERIFICATION` | [Google Search Console](https://search.google.com/search-console) verification token. Rendered as a `<meta>` tag. |
+
+### Sentry
+
+[Sentry](https://docs.sentry.io/platforms/javascript/guides/nextjs/) is used for error reporting. When no DSN is configured, the Sentry SDK initializes but is disabled; no errors are sent and no network requests are made.
+
+| Variable | Description | Required for |
+|----------|-------------|-------------|
+| `SENTRY_DSN_URL` | Sentry DSN for server-side error reporting | Runtime error reporting |
+| `NEXT_PUBLIC_SENTRY_DSN_URL` | Sentry DSN for client-side error reporting | Runtime error reporting |
+| `SENTRY_AUTH_TOKEN` | Auth token for uploading source maps | CI/production builds only |
+| `SENTRY_ORG_NAME` | Sentry organization slug | CI/production builds only |
+| `SENTRY_PROJECT_NAME` | Sentry project slug | CI/production builds only |
+| `SENTRY_URL` | Sentry instance URL (only if self-hosting Sentry) | CI/production builds only |
+
+The `SENTRY_AUTH_TOKEN`, `SENTRY_ORG_NAME`, `SENTRY_PROJECT_NAME`, and `SENTRY_URL` variables are only used during builds to upload source maps. They have no effect at runtime or in local development.
 
 ## Running Tests
 

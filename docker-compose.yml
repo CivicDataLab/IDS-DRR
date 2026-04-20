@@ -38,7 +38,10 @@ services:
       context: ./platform/data-management
     restart: always
     container_name: "context_layer_Backend"
+    # In production, use a uvicorn command. The current command enables auto-reload.
+    #   uvicorn D4D_ContextLayer.asgi:application --host 0.0.0.0 --port 8000
     command: python manage.py runserver 0.0.0.0:8000
+    # In production, remove `volumes`, which currently mounts the source code for live editing.
     volumes:
       - ./platform/data-management:/code
     ports:
@@ -53,7 +56,19 @@ services:
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
       - REDIS_URL=redis://redis:6379/1
-      - WHITELIST_INDICATORS=topsis-score
+      - WHITELIST_INDICATORS=${WHITELIST_INDICATORS:-topsis-score}
+      # In production, set to "production".
+      - DJANGO_ENV=${DJANGO_ENV:-development}
+      # In production, set to a random string.
+      - SECRET_KEY=${SECRET_KEY:-!!!SECRET_KEY!!!}
+      # In production, add your domain, like: backend,backend.example.com
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-backend}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('localhost', 8000), timeout=2).close()"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     depends_on:
       db:
         condition: service_healthy
@@ -65,16 +80,21 @@ services:
     container_name: "context_layer_Frontend"
     build:
       context: ./platform/frontend
+      # In production, remove `target`. This currently builds only through to the Dockerfile's dev stage. 
       target: dev
     restart: always
+    # In production, remove `command` to use the Dockerfile's CMD. The current command enables hot reload.
     command: npm run dev
     env_file:
       - path: ./platform/frontend/.env
         required: false
     environment:
+      # In production, remove NODE_ENV, in order to default to "production".
       - NODE_ENV=development
       - DATA_MANAGEMENT_LAYER_URL=http://backend:8000
-      - NEXT_PUBLIC_DATA_MANAGEMENT_LAYER_URL=http://localhost:8000
+      # In production, set to your domain.
+      - NEXT_PUBLIC_DATA_MANAGEMENT_LAYER_URL=${NEXT_PUBLIC_DATA_MANAGEMENT_LAYER_URL:-http://localhost:8000}
+    # In production, remove `volumes`, which currently mounts the source code for live editing.
     volumes:
       - ./platform/frontend:/app
       - /app/node_modules
@@ -82,7 +102,8 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 volumes:
   postgres_data:
     name: postgres_data

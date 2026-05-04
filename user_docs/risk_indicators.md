@@ -1,4 +1,4 @@
-### Risk Indicators
+# Risk Indicators
 
 IDS-DRR evaluates flood risk by analyzing how environmental threats interact with local community characteristics and administrative support to provide a holistic view of regional resilience.
 

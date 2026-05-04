@@ -8,6 +8,9 @@ Welcome to the User documentation for the Intelligent Data Solution for Disaster
    :caption: Contents
 
    overview
+   risk_indicators
+   how_to_use
+   what_you_can_do
 
 Indices and tables
 ==================

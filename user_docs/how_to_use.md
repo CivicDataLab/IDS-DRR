@@ -36,6 +36,7 @@ You can use this tool to view the flood risk level of various districts (and sub
 * A detailed data overlay will open on the right side of the screen.
 * Scan through the right side overlay to see specific data points 
 * Select specific data points on the left menu and see how different factors contribute to the regional risk.
+
 <img width="475" height="266.75" alt="image" src="https://github.com/user-attachments/assets/21627cc8-3d38-48a1-9c10-c3bf0d217dda" />
  <img width="475" height="266.75" alt="image" src="https://github.com/user-attachments/assets/88753a2e-aa32-40b3-9af0-8d0011585aed" />
 

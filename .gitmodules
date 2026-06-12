@@ -7,9 +7,3 @@
 [submodule "platform/qa-automation"]
 	path = platform/qa-automation
 	url = git@github.com:CivicDataLab/IDS-DRR-QA-Automation.git
-[submodule "data/pipeline"]
-	path = data/pipeline
-	url = git@github.com:CivicDataLab/IDS-DRR-Pipeline.git
-[submodule "risk-models/assam"]
-	path = risk-models/assam
-	url = git@github.com:CivicDataLab/IDS-DRR-Assam-Risk-Model.git

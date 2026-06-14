@@ -29,6 +29,7 @@ Welcome to the documentation for the Intelligent Data Solution for Disaster Risk
    platform/index
    platform/frontend
    platform/data-management
+   platform/dataspace
    platform/qa-automation
 
 

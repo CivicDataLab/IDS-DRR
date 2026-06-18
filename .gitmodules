@@ -7,3 +7,6 @@
 [submodule "platform/qa-automation"]
 	path = platform/qa-automation
 	url = git@github.com:CivicDataLab/IDS-DRR-QA-Automation.git
+[submodule "platform/risk-score-model-generic"]
+	path = platform/risk-score-model-generic
+	url = https://github.com/CivicDataLab/risk-score-model-generic.git

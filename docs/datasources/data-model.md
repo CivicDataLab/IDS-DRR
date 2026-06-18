@@ -1,5 +1,14 @@
 # Data Model
 
+## Relevance to the Sustainable Development Goals
+
+The IDS-DRR platform directly supports:
+
+- **SDG 13 — Climate Action**, in particular target 13.1 (strengthen resilience and adaptive capacity to climate-related hazards) and indicator 13.1.1 (number of people affected by disasters).
+- **SDG 11 — Sustainable Cities and Communities**, in particular target 11.5 (reduce deaths and economic losses caused by disasters) and target 11.b (integrated policies for resilience to disasters).
+
+By producing transparent, reproducible risk scores at granular administrative levels, the platform enables agencies to plan mitigation, target relief, and audit historical response patterns against measured exposure and vulnerability.
+
 ## Context
 
 The IDS-DRR platform aims to fill a need where authorities lack the data to make actionable insights when it comes to long term flood risk mitigation. The platform is designed based primarily on the UN's SENDAI framework for Disaster Risk Reduction (DRR). Within this framework, flood risk is defined as being proportional to the following factors:
@@ -24,6 +33,8 @@ The data model for the IDS-DRR platform was built keeping this relationship in m
 ## Data Model Overview
 
 The data model is run monthly and outputs 5 factor scores and a risk score for each revenue circle and district. All the scores range from 1-5, where 1 corresponds to lowest risk / hazard / vulnerability, and 5 corresponds to highest.
+
+The model produces separate per-factor output files (`factor_scores_l1_flood-hazard.csv`, `factor_scores_l1_exposure.csv`, `factor_scores_l1_vulnerability.csv`, `factor_scores_l1_government-response.csv`) and a final platform-ready output (`risk_score_district.csv`) containing both block-level and district-level rows. The output schema is documented in full in [`docs/data_dictionary.csv`](https://github.com/CivicDataLab/risk-score-model-generic/blob/main/docs/data_dictionary.csv) in the model repository.
 
 ## Exposure
 
@@ -72,13 +83,35 @@ Vulnerability is a measure of the resilience of a population, and indicates the 
 
 To calculate the Vulnerability factor score, a method known as **Data Envelopment Analysis (DEA)** is utilized. DEA calculates an "efficiency score" for each spatial unit based on its ability to minimize losses and damages given its available infrastructure and vulnerable population.
 
+#### Pre-processing
+
+Before the DEA model is run, select variables are normalised to make them comparable across units of different sizes:
+
+- `population_affected_total` and `human_lives_lost` are divided by `total_population`
+- `crop_area` is divided by `net_sown_area_ha`
+- Road, bridge, and flood protection damage variables are divided by area (km²)
+- Infrastructure density variables (`schools_count`, `health_centres_count`, `rail_length`, `road_length`, `elderly_population`) are also divided by area (km²)
+
+#### Damage-weighted scoring
+
+A composite damage score is computed to increase the sensitivity of the DEA during months when actual flood damage occurred:
+
+```text
+damage_score = MinMax_sum(damage_vars) + 1
+custom_weight = damage_score²
+```
+
+If any damage variable exceeds a threshold (0.0001), the damage variables and negative-polarity inputs are multiplied by `custom_weight`. This amplifies the signal in damaged units so that the DEA correctly penalises poor conditions that co-occur with high observed damage.
+
+#### DEA transformations
+
 The following transformations are made before running the DEA model:
 
-1. The data range of each indicator is normalized using MinMaxScaler (0-1)
-2. The "positive" input indicators are reversed (subtracted from 1)
-3. The losses and damage indicators are all reversed, as the "output" is the ability of the spatial unit to reduce damage
+1. All input and output variables are normalized using MinMaxScaler (0-1) within each month.
+2. **Positive-resilience inputs** — indicators where a higher value means better resilience (e.g. `schools_count`, `health_centres_count`, `rail_length`, `road_length`, `electricity_access`, `piped_water_households_pct`) — are inverted (subtracted from 1) so that the DEA correctly treats their absence as a vulnerability.
+3. The losses and damage output variables are all inverted (subtracted from 1), so that the DEA model seeks units that minimise damage as its "efficient" outcome.
 
-The DEA model is then run (using Gurobi's python implementation). The efficiency scores output by the model are then classified into 5 classes from 5 to 1 using Jenk's Natural Breaks.
+The DEA model is then run using **PuLP with the open-source CBC solver** (Constant Returns to Scale, input-oriented). The efficiency scores output by the model are classified into 5 vulnerability classes using the **Fisher-Jenks Natural Breaks** algorithm, which minimises within-class variance. Classification is reversed — high efficiency maps to low vulnerability (class 1); low efficiency maps to high vulnerability (class 5).
 
 ## Coping Capacity / Government Response
 
@@ -111,8 +144,30 @@ Before running the TOPSIS model, weights are assigned to each factor type based 
 |--------|--------|----------|---------------|-----------------|
 | **Weightage** | 4 | 1 | 2 | 2 |
 
+These weights are configured in `topsis_config.toml` and can be adjusted without editing any code, to reflect local context or policy priorities.
+
 TOPSIS takes the individual factor scores and corresponding weightages as inputs. It works by defining an ideal solution and a non-ideal solution based on the factor scores, and computing the similarity of each individual RC's factor score matrix to the ideal and non-ideal solution. The final risk score is generated by binning TOPSIS output into categories from 1-5 based on their relative scores.
 
 Once the TOPSIS score is calculated at a revenue circle / tehsil level, the factor scores and final risk score are calculated at the district level by grouping revenue circles within each month by their corresponding districts, and calculating the arithmetic mean of the revenue circle scores for each factor.
 
-The data model outputs a single CSV, which contains all the month-wise datapoints grouped by revenue circle. The district level scores are appended to the end of the CSV for ingestion into the platform backend.
+The model produces per-factor output files and a final platform-ready file (`risk_score_district.csv`) containing both block-level and district-level rows. The complete output schema is documented in [`docs/data_dictionary.csv`](https://github.com/CivicDataLab/risk-score-model-generic/blob/main/docs/data_dictionary.csv).
+
+## Limitations and Responsible Use
+
+The following limitations should be considered when interpreting outputs from this model:
+
+- **Scores are relative, not absolute.** All factor scores and the composite risk score are computed relative to other revenue circles within the same monthly dataset. A score of 1 (low risk) does not indicate absence of risk — it indicates lower risk than peers in that period.
+- **The model is not a forecast.** It reflects observed conditions and historical data. It should not be used to predict future flood events.
+- **Data staleness.** Some inputs have not been updated recently: Mission Antyodaya figures are from 2020, NASADEM elevation data is from 2000, and national census-based figures have been extrapolated using WorldPop estimates since the 2011 census. Results in areas that have seen significant infrastructure or demographic change should be interpreted with caution.
+- **Low-risk classifications must not be used to justify withdrawing services.** A low vulnerability or risk score reflects relative conditions across the dataset; it does not mean a revenue circle is safe or that services can be reduced.
+- **DEA efficiency scores are sensitive to the composition of the peer group.** Adding or removing revenue circles from the dataset will change the efficiency frontier and therefore shift scores.
+
+For full guidance on responsible use, see [`RESPONSIBLE_DATA_USE.md`](https://github.com/CivicDataLab/risk-score-model-generic/blob/main/RESPONSIBLE_DATA_USE.md) in the model repository.
+
+## License
+
+The risk score model source code is licensed under the [GNU Affero General Public License v3.0 (AGPL-3.0)](https://github.com/CivicDataLab/risk-score-model-generic/blob/main/LICENSE). Sample and derived datasets produced by the model are released under [Creative Commons Attribution 4.0 International (CC-BY 4.0)](https://creativecommons.org/licenses/by/4.0/), unless a more restrictive licence applies to a specific upstream source, in which case the upstream licence governs that file.
+
+## DPG Compliance
+
+This project is submitted as a Digital Public Good. A full self-assessment mapping the project to all nine indicators of the [DPG Standard](https://digitalpublicgoods.net/standard/) is available in [`docs/dpg.md`](https://github.com/CivicDataLab/risk-score-model-generic/blob/main/docs/dpg.md) in the model repository.

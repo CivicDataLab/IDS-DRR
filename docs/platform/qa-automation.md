@@ -1,54 +1,21 @@
 # QA & Automation
 
-The QA Automation component provides automated testing and quality assurance for the IDS-DRR platform.
+This component provides end-to-end browser tests for a deployed instance of the [Frontend](frontend.md).
 
 **Repository**: [IDS-DRR-QA-Automation](https://github.com/CivicDataLab/IDS-DRR-QA-Automation)
 
-## Overview
+## Features
 
-This component ensures the quality and reliability of the IDS-DRR platform through:
+A pytest + Selenium framework with a Page Object Model, self-healing locators, and parallel execution. Tests exercise the public-facing UI (analytics maps, the components/widgets, and the datasets pages), implicitly covering frontend-to-backend communication along the way.
 
-- **End-to-End Testing**: Automated browser tests for user workflows
-- **API Testing**: Validation of backend API responses
-- **Regression Testing**: Ensuring new changes don't break existing functionality
-- **Performance Testing**: Load and stress testing for the platform
+## What's covered
 
-## Test Categories
+- **Analytics workflows**: map rendering, indicator switching, time-period filtering, drill-down between geography levels.
+- **Component behaviour**: shared UI primitives used across pages.
+- **Datasets pages** when the DataSpace backend is configured.
 
-### Functional Tests
+The suite supports the `smoke` pytest marker for a fast subset suitable for CI gates.
 
-- Map rendering and interaction
-- Filter functionality
-- Data accuracy validation
-- Report generation
+## Running tests
 
-### Integration Tests
-
-- Frontend-Backend communication
-- Data pipeline integration
-- External API dependencies
-
-### Performance Tests
-
-- Page load times
-- API response times
-- Concurrent user handling
-
-## Running Tests
-
-```bash
-# Clone the repository
-git clone https://github.com/CivicDataLab/IDS-DRR-QA-Automation.git
-cd IDS-DRR-QA-Automation
-
-# Setup and run tests
-# TODO
-```
-
-## CI/CD Integration
-
-> **Note**: To be documented in the future.
-
-## Test Reports
-
-> **Note**: To be documented in the future.
+See the [repository](https://github.com/CivicDataLab/IDS-DRR-QA-Automation) for setup instructions, environment configuration, and the parallel-execution helper scripts.

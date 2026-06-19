@@ -4,9 +4,7 @@ The Data Management component provides the backend APIs and data management laye
 
 **Repository**: [IDS-DRR-Data-Management](https://github.com/CivicDataLab/IDS-DRR-Data-Management)
 
-## Overview
-
-The Data Management layer handles:
+## Features
 
 - **Data Storage**: PostGIS-enabled PostgreSQL database for storing processed data, risk scores, and geographical boundaries
 - **Caching**: Redis for caching query results (maps, tables, time trends, indicators)
@@ -14,7 +12,7 @@ The Data Management layer handles:
 - **Data Ingestion**: Django management commands for importing geographical and indicator data
 - **Geographical Data**: Support for states, districts, revenue circles, sub-districts, blocks, and tehsils
 
-## Tech Stack
+## Tech stack
 
 - **Framework**: Django 4.2
 - **Database**: PostgreSQL with PostGIS extension
@@ -31,67 +29,180 @@ The Data Management layer handles:
 - GDAL, GEOS, and PROJ libraries (for geospatial operations)
 - Docker & Docker Compose (recommended)
 
-## Local Development
+## Local development
 
-### Option 1: Using Docker (Recommended)
+### Option 1: Using Docker (recommended)
 
-```bash
-# Clone the repository
-git clone https://github.com/CivicDataLab/IDS-DRR-Data-Management.git
-cd IDS-DRR-Data-Management
+The `docker-compose.yml` file provides three services:
 
-# Create report configuration (required for state listing and PDF reports)
-cp report_config.local.json report_config.json
+| Service | Container | Host port | Description |
+|---|---|---|---|
+| `db` | `context_layer_PG` | `54321` | PostGIS database |
+| `redis` | `context_layer_Redis` | `6380` | Redis cache |
+| `web` | `context_layer_Backend` | `8000` | Django application |
 
-# Start services
-docker compose up -d --build
+1. Clone the repository:
 
-# Run migrations
-docker exec context_layer_Backend python manage.py makemigrations
-docker exec context_layer_Backend python manage.py migrate
+   ```bash
+   git clone https://github.com/CivicDataLab/IDS-DRR-Data-Management.git
+   cd IDS-DRR-Data-Management
+   ```
 
-# Import data (see Data Import section below)
-docker exec context_layer_Backend python manage.py import_data
+2. Start services:
 
-# The API will be available at http://localhost:8000
+   ```bash
+   docker compose up -d --build
+   ```
+
+3. Run migrations:
+
+   ```bash
+   docker exec context_layer_Backend python manage.py makemigrations
+   docker exec context_layer_Backend python manage.py migrate
+   ```
+
+4. Import data (see [Data import](#data-import) below):
+
+   ```bash
+   docker exec context_layer_Backend python manage.py import_geojson
+   docker exec context_layer_Backend python manage.py import_indicators
+   docker exec context_layer_Backend python manage.py import_data
+   ```
+
+The API will be available at <http://localhost:8000>.
+
+To override the default settings (e.g. credentials), create a `.env` file in the project root; Docker Compose picks it up automatically. See [Environment Variables](#environment-variables) below.
+
+### Option 2: Manual setup
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/CivicDataLab/IDS-DRR-Data-Management.git
+   cd IDS-DRR-Data-Management
+   ```
+
+2. Create and activate a virtual environment:
+
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Create a `.env` file (see [Environment variables](#environment-variables) below). For a manual setup where Postgres and Redis run on the host, set `POSTGRES_HOST=localhost` and `REDIS_URL=redis://127.0.0.1:6379/1`.
+
+5. Run migrations:
+
+   ```bash
+   python manage.py makemigrations
+   python manage.py migrate
+   ```
+
+6. Import data (see [Data import](#data-import) below):
+
+   ```bash
+   python manage.py import_geojson
+   python manage.py import_indicators
+   python manage.py import_data
+   ```
+
+7. Start the development server:
+
+   ```bash
+   python manage.py runserver
+   ```
+
+The API will be available at <http://localhost:8000>.
+
+## Configuration
+
+The Data Management component reads deployment-specific data from a TOML file at startup. The default path is `config.toml` next to `manage.py` (override with the `CONFIG_PATH` environment variable).
+
+### Prepare your config
+
+1. Copy [config.toml.example](https://github.com/CivicDataLab/IDS-DRR-Data-Management/blob/dev/config.toml.example) to `config.toml` next to `manage.py`. It's annotated inline; lean on the comments as you fill out the sections below.
+2. Add a `[[geojson]]` entry for each geography level you want to import (state, district, sub-district, etc.). Each entry points at a GeoJSON file, declares the geography type, and describes how to derive each feature's code from its properties.
+3. Add a `[[states]]` entry for each region you're shipping. Each entry points at that region's indicator-definition and indicator-value CSVs, plus any optional metadata.
+4. Adjust top-level options (`whitelist_indicators`, `default_time_period`, `simplify_tolerance`, `[[chart_types]]` for [DataSpace map charts](dataspace.md#adding-a-new-map-chart), etc.) as needed for your deployment.
+
+### Directory layout
+
+Lay out your deployment directory so `config.toml` sits at the root and references its siblings:
+
+```
+<your-deployment>/
+  config.toml
+  geography/
+    <your>.geojson
+  indicators/
+    <state>_indicators.csv
+  data/
+    <state>_data.csv
 ```
 
-To override the defaults (e.g. credentials), create a `.env` file in the project root; Docker Compose picks it up automatically. See [Environment Variables](#environment-variables) below.
+Paths in `config.toml` are written relative to it, e.g. `path = "geography/foo.geojson"`.
 
-See `report_config.example.json` for the full configuration format, including report sections and chart definitions.
+Deployments that ship a [plugin](#pdf-report-opt-in) can keep its code alongside the config + data so everything is versioned together. The IDS-DRR India deployment, for example, does this in [ids-drr-india-plugin](https://github.com/CivicDataLab/ids-drr-india-plugin). Deployments without a plugin can keep config + data in a standalone directory.
 
-### Option 2: Manual Setup
+### Check your config
 
-```bash
-# Clone the repository
-git clone https://github.com/CivicDataLab/IDS-DRR-Data-Management.git
-cd IDS-DRR-Data-Management
+The TOML file's schema is enforced at startup: errors like unknown keys or malformed `[[geojson]]` parent specs raise `ImproperlyConfigured`. A `layer.W001` system check warns when no configuration is loaded, and `layer.W002.<section>` warns when the `[[geojson]]` or `[[states]]` sections are missing. Run `python manage.py check` to check for any warnings.
 
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+### Load your config in Docker Compose
 
-# Install dependencies
-pip install -r requirements.txt
+Add your deployment directory as a new bind-mount on the `web` service, alongside the existing source-code mount:
 
-# Create environment file and configure (see Environment Variables below)
-# Set POSTGRES_HOST=localhost and REDIS_URL=redis://127.0.0.1:6379/1
-# for a manual setup where Postgres and Redis run on the host
+```{code-block} yaml
+:emphasize-lines: 5
 
-# Run migrations
-python manage.py makemigrations
-python manage.py migrate
-
-# Import data (see Data Import section below)
-python manage.py import_data
-
-# Start development server
-python manage.py runserver
+services:
+  web:
+    volumes:
+      - ./platform/data-management:/code
+      - ./<your-deployment>:/config:ro
 ```
 
-## Environment Variables
+Then set `CONFIG_PATH=/config/config.toml` in the `web` service's environment: either in the compose `environment:` block, or in a `.env` file picked up via `env_file:`.
 
-When using Docker, all variables have sensible defaults; no `.env` file is needed. To override any value, create a `.env` file in the project root; Docker Compose picks it up automatically for variable substitution.
+Inside the container, the TOML lives at `/config/config.toml`, so its relative paths resolve to `/config/geography/…`, `/config/data/…`, etc.
+
+### Load your config without Docker
+
+Set `CONFIG_PATH` in your `.env` (or the process' environment) to either a relative or absolute path:
+
+```
+CONFIG_PATH=path/to/deployment/config.toml
+```
+
+### PDF report (opt-in)
+
+The frontend can render a "Download Report" button on the analytics page that fetches a PDF from this backend's `/report` endpoint; see [Frontend → PDF Report (opt-in)](frontend.md#pdf-report-opt-in) for the user-facing behaviour and the API contract the frontend expects.
+
+The Data Management component does **not** ship a `/report` implementation; deployments that want one provide it as a Django app (a "plugin"). The Data Management component always loads this Django app at the module name `plugin`.
+
+The Data Management component provides a default plugin, `plugin-stub`, which ships no routes, so the platform exposes no PDF endpoint. To expose one, install a deployment-specific plugin in place of the stub. See [ids-drr-india-plugin](https://github.com/CivicDataLab/ids-drr-india-plugin) for a worked example.
+
+To enable a plugin:
+
+1. Install it into the data-management environment in place of `plugin-stub`. For example:
+
+   ```bash
+   uv pip install --force-reinstall --no-deps <path-to-plugin>
+   ```
+
+2. Set `features.reports = true` in the frontend branding package's `src/config.ts` so the "Download Report" button is shown. For more, see [Frontend → PDF Report (opt-in)](frontend.md#pdf-report-opt-in).
+
+If the frontend button is enabled but no real plugin is installed (or the stub is still in place), "Download Report" clicks return 404.
+
+## Environment variables
+
+When using Docker, all variables have sensible defaults; no `.env` file is needed. To override any value, create a `.env` file in the project root; Docker Compose picks it up automatically.
 
 For manual (non-Docker) setup, a `.env` file is required since there are no defaults for database connection details.
 
@@ -103,8 +214,6 @@ For manual (non-Docker) setup, a `.env` file is required since there are no defa
 | `POSTGRES_HOST` | Database host | `db` | `localhost` |
 | `POSTGRES_PORT` | Database port | `5432` | `5432` |
 | `REDIS_URL` | Redis connection URL | `redis://redis:6379/1` | `redis://127.0.0.1:6379/1` |
-| `CHART_API_BASE_URL` | DataSpace chart generation endpoint, used to render charts as images in PDF reports (e.g. `http://localhost:8001/api/generate-dynamic-chart/`) | | |
-| `WHITELIST_INDICATORS` | Comma-separated indicator slugs to import in addition to visible indicators | `topsis-score` | `topsis-score` |
 
 ### Production
 
@@ -121,97 +230,77 @@ Generate a secret key with:
 python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 ```
 
-## Data Import
+## Data import
 
-The data management layer uses the `import_data` management command for importing and updating data.
-
-Import all data (geojson, indicators, and data for all states):
+The Data Management component uses three management commands that must be run in order. Each stage assumes the previous one has populated its prerequisite rows:
 
 ```bash
-python manage.py import_data
+python manage.py import_geojson      # geographies
+python manage.py import_indicators   # indicator definitions
+python manage.py import_data         # indicator values
 ```
 
-Or, import data for a specific state:
+`import_indicators` and `import_data` accept `--state "<name>"` to restrict the run to one state (must match a `[[states]]` entry exactly; run `--help` to see the list). `import_data` also accepts `--district <code>` to restrict the run to one district:
 
 ```bash
-python manage.py import_data --state assam
-python manage.py import_data --state himachal_pradesh
-python manage.py import_data --state odisha
+python manage.py import_indicators --state Assam
+python manage.py import_data --state Assam --district 201
 ```
 
-Or, import data for a specific district within a state:
+Running `import_data` for a state that has no indicators yet (or whose indicator slugs don't overlap with any columns in the data CSV) raises a `CommandError` rather than silently importing nothing.
+
+### What the import commands do
+
+1. **`import_geojson`** reads `[[geojson]]` from `config.toml` and inserts `Geography` rows (state, district, sub-district) with their MultiPolygon geometries. Per-file code extraction and parent lookup are driven by the TOML; see the comments in `config.toml.example`.
+2. **`import_indicators`** reads each `[[states]]` entry's [indicators CSV](#indicator-csv-schema) and upserts `Indicators` rows for that state (name, description, category, unit, data source, parent, visibility).
+3. **`import_data`** reads each `[[states]]` entry's [data CSV](#data-csv-schema) and inserts `Data` rows, one per (indicator, geography, time period). Existing rows for the affected geographies and time periods are deleted first.
+
+### Resetting before a new config
+
+To load a different `config.toml` from scratch, wipe the imported rows first:
 
 ```bash
-python manage.py import_data --state assam --district 201
+python manage.py delete_imports
 ```
 
-### What the Import Command Does
+This deletes every `Data`, `Indicators`, `Unit`, and `Geography` row in a foreign-key-safe order and invalidates the data cache. It prompts for confirmation; pass `--noinput` to skip the prompt.
 
-1. **Migrates GeoJSON Data**: Imports geographical boundaries from `layer/assets/geojson/` directory
-   - Creates state, district, revenue circle, sub-district, block, and tehsil records
-   - Stores MultiPolygon geometries for each geographical unit
+### Indicator CSV schema
 
-2. **Updates Indicators**: Imports indicator definitions from `layer/assets/indicators/*_indicators.csv`
-   - Creates/updates indicator metadata (name, description, category, unit, data source)
-   - Links indicators to their parent indicators and geographical units
-
-3. **Imports State Data**: Imports actual data values from `layer/assets/data/*_data.csv`
-   - Associates data values with indicators and geographical units
-   - Supports time-period based data
-
-### Indicator CSV Format
-
-The indicator CSV files should have the following columns:
+The indicator CSV is the platform's public API for loading indicators; column names are fixed. Pre-process your source data to match before pointing `config.toml` at it.
 
 | Column | Description |
 |--------|-------------|
-| `indicatorSlug` | Unique identifier for the indicator |
-| `indicatorTitle` | Display name of the indicator |
-| `indicatorDescription` | Detailed description |
-| `indicatorCategory` | Category grouping |
-| `unit` | Unit of measurement |
-| `datasource` | Data source reference |
-| `parent` | Parent indicator name (for hierarchical indicators) |
-| `visible_on_platform` | `y` or `n` to control visibility |
+| `indicatorSlug` | Unique identifier for the indicator (lower-cased on import). |
+| `indicatorTitle` | Display name of the indicator. |
+| `indicatorDescription` | Detailed description. |
+| `indicatorCategory` | Category grouping. |
+| `unit` | Unit of measurement. Matched against `Unit.name`, case-insensitive; created on first use. |
+| `datasource` | Data source reference (free text). |
+| `parent` | Display name of the parent indicator within the same state, if any. |
+| `visible_on_platform` | `y` to expose the indicator on the platform, otherwise hidden. |
 
-### Data CSV Format
+### Data CSV schema
 
-The data CSV files should have:
+Likewise, the data CSV schema is fixed:
 
-- `object-id`: Geography code (used as index)
-- `timeperiod`: Time period for the data (e.g., `2024_08`)
-- Columns for each indicator slug with their values
-
-## Database Schema
-
-### Core Models
-
-- **Geography**: Stores geographical boundaries (states, districts, etc.) with PostGIS geometry
-- **Indicators**: Stores indicator metadata and hierarchical relationships
-- **Data**: Stores actual data values linked to indicators and geographies
-- **Unit**: Stores units of measurement
-
-## Docker Services
-
-The `docker-compose.yml` provides three services:
-
-| Service | Container Name | Port | Description |
-|---------|---------------|------|-------------|
-| `db` | `context_layer_PG` | `54321:5432` | PostGIS database |
-| `redis` | `context_layer_Redis` | `6380:6379` | Redis cache |
-| `web` | `context_layer_Backend` | `8000:8000` | Django application |
+| Column | Description |
+|--------|-------------|
+| `object-id` | Geography code — used as the CSV index; must match a `Geography.code` imported from GeoJSON. |
+| `timeperiod` | Time period for the row (e.g. `2024_08`). |
+| *`<indicatorSlug>`* | One column per indicator slug, holding that row's value. Extra columns are ignored. |
 
 ## Troubleshooting
 
-### Common Issues
+### Common issues
 
-1. **PostGIS Extension Missing**: Ensure PostgreSQL has PostGIS extension installed
+1. **PostGIS Extension Missing**: Ensure PostgreSQL has the PostGIS extension installed.
 
    ```sql
    CREATE EXTENSION postgis;
    ```
 
-2. **GDAL/GEOS Not Found**: Install geospatial libraries
+2. **GDAL/GEOS Not Found**: Install geospatial libraries.
 
    ```bash
    # Ubuntu/Debian
@@ -221,4 +310,4 @@ The `docker-compose.yml` provides three services:
    brew install gdal geos proj
    ```
 
-3. **State Data File Missing**: Ensure data files exist in `layer/assets/data/` with correct naming convention (`{state}_data.csv`)
+3. **State data file missing**: Each `[[states]]` entry's `data` path in `config.toml` must resolve to an existing CSV. Paths are relative to the TOML file.

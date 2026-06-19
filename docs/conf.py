@@ -17,6 +17,8 @@ extensions = [
     "myst_parser",
 ]
 
+myst_heading_anchors = 3
+
 # Support both .rst and .md sources
 source_suffix = {
     ".rst": "restructuredtext",

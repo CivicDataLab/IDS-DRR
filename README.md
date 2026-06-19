@@ -5,7 +5,7 @@
 
 **IDS-DRR** is an open-source platform that helps state-level and district-level Disaster Management Authorities make timely, data-driven decisions. It joins up government spending data with complex datasets spanning flood hazard, exposure, and vulnerability — enabling decision-makers to identify where the most urgent interventions are needed and what investments have already been made.
 
-The platform is built for Assam, India, as a 4-year pilot and is designed to be replicable for other flood-prone states.
+The platform was initiall built for Assam, India, as a 4-year pilot and has since been designed to be replicable for other flood-prone geographies.
 
 > 🌐 **Live platform:** [drr.open-contracting.in](https://drr.open-contracting.in/en/analytics?indicator=risk-score&time-period=2023_08&boundary=district)
 > 📖 **Full documentation:** [ids-drr.readthedocs.io](https://ids-drr.readthedocs.io/en/latest/)
@@ -49,9 +49,9 @@ IDS-DRR/
 | **Frontend** | [IDS-DRR-Frontend](https://github.com/CivicDataLab/IDS-DRR-Frontend) | Next.js web app with interactive maps, filters, and reports |
 | **Data Management API** | [IDS-DRR-Data-Management](https://github.com/CivicDataLab/IDS-DRR-Data-Management) | Django REST API for analytics, risk scores, and indicators |
 | **Data Pipeline** | [IDS-DRR-Pipeline](https://github.com/CivicDataLab/IDS-DRR-Pipeline) | ETL pipelines for data ingestion and processing |
-| **Risk Models (Assam)** | [IDS-DRR-Assam-Risk-Model](https://github.com/CivicDataLab/IDS-DRR-Assam-Risk-Model) | Statistical models for flood risk scoring (TOPSIS, DEA) |
+| **Risk Models (Adaptable for different geographes)** | [IDS-DRR-Risk-Score Model](https://github.com/CivicDataLab/risk-score-model-generic) | Statistical models for flood risk scoring (TOPSIS, DEA) |
 | **DataSpace Backend** | [DataSpaceBackend](https://github.com/CivicDataLab/DataSpaceBackend) | Optional: dataset catalog, search, and publishing |
-| **QA Automation** | [IDS-DRR-QA-Automation](https://github.com/CivicDataLab/IDS-DRR-QA-Automation) | Automated testing and quality assurance |
+| **QA Automation** | [IDS-DRR-QA-Automation](https://github.com/CivicDataLab/IDS-DRR-QA-Automation) | Optional: Automated testing and quality assurance |
 
 ---
 
@@ -128,7 +128,7 @@ Identify → Collect → Process → Model → Analyze → Front-End → Publish
 1. **Identify** — Determine required data, sources, and variables
 2. **Collect** — Gather raw data via APIs, QGIS, or scraping
 3. **Process** — Clean, transform, and standardize data into a PostGIS database
-4. **Model** — Run flood risk scoring (TOPSIS, DEA via Gurobi)
+4. **Model** — Run flood risk scoring 
 5. **Analyze** — Expose results through REST APIs
 6. **Front-End** — Interactive maps and tailored reports for decision-makers
 7. **Publish** — Historical and real-time data publishing via DataSpace
@@ -179,7 +179,7 @@ Please check the [open issues](https://github.com/CivicDataLab/IDS-DRR/issues) f
 
 ## Partners
 
-This 4-year project is led by **[CivicDataLab](https://civicdatalab.in/)** and **[Open Contracting Partnership](https://www.open-contracting.org/)**, focused on improving disaster risk reduction processes in the state of Assam, India. It is supported by **The Rockefeller Foundation**.
+This 4-year project is led by **[CivicDataLab](https://civicdatalab.in/)** and **[Open Contracting Partnership](https://www.open-contracting.org/)**, focused on improving disaster risk reduction processes in India. Datasets and risk score methodology was developed in collaboration with the **Assam State Disaster Management Authority** and the **Himachal Pradesh State Disaster Management Authority**. It is supported by **Patrick J. McGovern Foundation** and **The Rockefeller Foundation**.
 
 ---
 

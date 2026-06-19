@@ -38,7 +38,7 @@ The model produces separate per-factor output files (`factor_scores_l1_flood-haz
 
 ## Exposure
 
-Exposure indicates the total population and value of assets that is at risk during a disaster event. In IDS-DRR, this consists of the two indicators: `total_households` taken from Mission Antyodaya, and `Sum_population`, derived from UN WorldPOP.
+Exposure indicates the total population and value of assets that is at risk during a disaster event. In IDS-DRR, this consists of the two indicators for the Indian context: `total_households` taken from Mission Antyodaya, and `Sum_population`, derived from UN WorldPOP.
 
 ### Transformation of each indicator
 

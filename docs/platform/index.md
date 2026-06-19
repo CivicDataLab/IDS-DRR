@@ -1,6 +1,6 @@
-# Platform Technical Documentation
+# Platform overview
 
-This section provides technical documentation for the IDS-DRR platform components, geared at teams looking to either contribute to the codebase or adopt the platform for their own region.
+This section is the technical documentation for the IDS-DRR platform components, geared at teams looking to either contribute to the codebase or adopt the platform for their own region.
 
 ## Is this for me?
 
@@ -28,8 +28,8 @@ Risk ∝ Exposure × Hazard × Vulnerability × (lack of Coping Capacity)
 
 Each factor scores 1–5; the overall risk score is computed monthly per administrative unit. The methodology is **not** flood-specific; adopters scoring other hazards (cyclone, drought, earthquake) reuse the same framework with different input indicators.
 
-- [Data Model](../datasources/data-model.md) — full methodology: factor definitions, normalization, z-score binning, and Data Envelopment Analysis for vulnerability.
-- [Data Sources](../datasources/data-ingestion.md) — the data sources used by the IDS-DRR India deployment, as a reference for the kinds of inputs each factor expects.
+- [Risk model](../datasources/data-model.md) — full methodology: factor definitions, normalization, z-score binning, and Data Envelopment Analysis for vulnerability.
+- [Data sources](../datasources/data-ingestion.md) — the data sources used by the IDS-DRR India deployment, as a reference for the kinds of inputs each factor expects.
 - [risk-score-model-generic](https://github.com/CivicDataLab/risk-score-model-generic) — the implementation. Produces the indicator-values CSV that `manage.py import_data` consumes.
 
 ## Platform components
@@ -40,7 +40,7 @@ Each factor scores 1–5; the overall risk score is computed monthly per adminis
 | **Data Management** | [IDS-DRR-Data-Management](https://github.com/CivicDataLab/IDS-DRR-Data-Management) | [Data Management API](data-management.md) | Backend APIs for analytics and risk data |
 | **Risk-score model** | [risk-score-model-generic](https://github.com/CivicDataLab/risk-score-model-generic) | [Risk model](#risk-model) | Generic, methodology-driven scoring model used to produce indicator values |
 | **DataSpace Backend** | [DataSpaceBackend](https://github.com/CivicDataLab/DataSpaceBackend) | [DataSpace Integration](dataspace.md) | Datasets catalog, search, and chart visualisations (optional) |
-| **QA Automation** | [IDS-DRR-QA-Automation](https://github.com/CivicDataLab/IDS-DRR-QA-Automation) | [QA & Automation](qa-automation.md) | Automated testing and quality assurance |
+| **QA Automation** | [IDS-DRR-QA-Automation](https://github.com/CivicDataLab/IDS-DRR-QA-Automation) | [QA & Automation](qa-automation.md) | Automated testing and quality assurance (optional) |
 
 ## Quick-start
 

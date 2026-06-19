@@ -10,7 +10,7 @@ The Data Management component provides the backend APIs and data management laye
 - **Caching**: Redis for caching query results (maps, tables, time trends, indicators)
 - **API Endpoints**: GraphQL APIs (via Strawberry) for frontend data access
 - **Data Ingestion**: Django management commands for importing geographical and indicator data
-- **Geographical Data**: Support for states, districts, revenue circles, sub-districts, blocks, and tehsils
+- **Geographical Data**: Support for a state container with district and sub-district administrative levels beneath it
 
 ## Tech stack
 

@@ -1,15 +1,4 @@
-# Data Model
-
-## Relevance to the Sustainable Development Goals
-
-The IDS-DRR platform directly supports:
-
-- **SDG 13 — Climate Action**, in particular target 13.1 (strengthen resilience and adaptive capacity to climate-related hazards) and indicator 13.1.1 (number of people affected by disasters).
-- **SDG 11 — Sustainable Cities and Communities**, in particular target 11.5 (reduce deaths and economic losses caused by disasters) and target 11.b (integrated policies for resilience to disasters).
-
-By producing transparent, reproducible risk scores at granular administrative levels, the platform enables agencies to plan mitigation, target relief, and audit historical response patterns against measured exposure and vulnerability.
-
-## Context
+# Risk model
 
 The IDS-DRR platform aims to fill a need where authorities lack the data to make actionable insights when it comes to long term flood risk mitigation. The platform is designed based primarily on the UN's SENDAI framework for Disaster Risk Reduction (DRR). Within this framework, flood risk is defined as being proportional to the following factors:
 
@@ -30,24 +19,19 @@ Where a, b, c and d are weightages currently provided to the different factor sc
 
 The data model for the IDS-DRR platform was built keeping this relationship in mind, and collates a variety of different sources to model risk scores for each factor.
 
-## Data Model Overview
+## Risk model overview
 
-The data model is run monthly and outputs 5 factor scores and a risk score for each revenue circle and district. All the scores range from 1-5, where 1 corresponds to lowest risk / hazard / vulnerability, and 5 corresponds to highest.
+The data model is run monthly and outputs 5 factor scores and a risk score for each sub-district and district. All the scores range from 1-5, where 1 corresponds to lowest risk / hazard / vulnerability, and 5 corresponds to highest.
 
 The model produces separate per-factor output files (`factor_scores_l1_flood-hazard.csv`, `factor_scores_l1_exposure.csv`, `factor_scores_l1_vulnerability.csv`, `factor_scores_l1_government-response.csv`) and a final platform-ready output (`risk_score_district.csv`) containing both block-level and district-level rows. The output schema is documented in full in [`docs/data_dictionary.csv`](https://github.com/CivicDataLab/risk-score-model-generic/blob/main/docs/data_dictionary.csv) in the model repository.
 
 ## Exposure
 
-Exposure indicates the total population and value of assets that is at risk during a disaster event. In IDS-DRR, this consists of the two indicators for the Indian context: `total_households` taken from Mission Antyodaya, and `Sum_population`, derived from UN WorldPOP.
+Exposure measures the population and value of assets at risk during a disaster event. The risk model uses two indicators per sub-district per month: `Sum_population` and `total_households`. Deployments are responsible for sourcing these from datasets appropriate to their region; see [Data sources → Exposure variables](data-ingestion.md#exposure-variables) for the inputs used by the Assam reference deployment.
 
-### Transformation of each indicator
+### Factor score
 
-- **Sum_population**: As the Census figures have not been updated since 2011, population figures have been estimated using UN WorldPOP's population dataset. Raster files from 2016-2020 are clipped to the region of analysis, and extrapolated using linear regression for 2021-24.
-- **Total_households**: Household figures for rural settlements are available in the Mission Antyodaya dataset. Figures for urban settlements are extrapolated from urban population figures.
-
-### Exposure Factor Score
-
-To calculate the Exposure factor score for a particular month, the data for each indicator across all the revenue circle / tehsils are normalized using Min-max Scaler in order to scale the range of values from 0-1. The individual feature scores are then added, and mean and standard deviation of the resulting "sum" column are then calculated. The factor score is then assigned to each revenue circle based on z-score binning:
+To calculate the Exposure factor score for a particular month, the data for each indicator across all the sub-districts are normalized using Min-max Scaler in order to scale the range of values from 0-1. The individual feature scores are then added, and mean and standard deviation of the resulting "sum" column are then calculated. The factor score is then assigned to each sub-district based on z-score binning:
 
 | Factor Cumulative Value | Factor Score |
 |------------------------|--------------|
@@ -59,27 +43,29 @@ To calculate the Exposure factor score for a particular month, the data for each
 
 ## Hazard
 
-Hazard is defined by the geographical and hydro-meteorological characteristics that contribute to the likelihood of a natural disaster resulting in loss of life or property. It consists of the following datasets:
+Hazard is defined by the geographical and hydro-meteorological characteristics that contribute to the likelihood of a natural disaster resulting in loss of life or property. The risk model expects three indicator categories:
 
-- **Drainage Density**: A measure of how many rivers/streams are present in an area, derived from the Digital Elevation Model (DEM), extracted from NASADEM's SRTM dataset. Only needs to be sourced once.
-- **Rainfall**: Daily rainfall figures are scraped from IMD using the IMDlib library, and transformed to extract `mean_rain` (average rainfall across a month) and `max_rain` (highest single instance of recorded daily rainfall).
-- **Inundation**: When available, inundation data is taken from Bhuvan's flood database. The data comes in the form of raster images where each pixel corresponds to a 10m × 10m area. These images are scraped and transformed to obtain `inundation_percentage` and `inundation_intensity`. In some cases, raster images are obtained from SENTINEL SAR-1 satellite imagery.
+- **Drainage density**: derived from a digital elevation model (DEM). Sourced once per region.
+- **Rainfall**: monthly aggregates such as `mean_rain` (average) and `max_rain` (peak daily value).
+- **Inundation**: monthly flood extent and intensity (`inundation_percentage`, `inundation_intensity`), typically derived from satellite-based flood rasters.
 
-### Hazard Factor Score
+See [Data sources → Hazard variables](data-ingestion.md#hazard-variables) for the inputs used by the Assam reference deployment.
 
-To calculate the Hazard factor score for a particular month, the data for each indicator across all the revenue circle / tehsils are normalized using minmaxscaler. The mean and standard deviation for each feature is then calculated across all the revenue circles for the month. A score is then assigned to each feature based on the z-score binning method. To obtain the final hazard score, the arithmetic mean of the individual factor scores is taken and rounded to the nearest integer.
+### Factor score
+
+To calculate the Hazard factor score for a particular month, the data for each indicator across all the sub-districts are normalized using minmaxscaler. The mean and standard deviation for each feature is then calculated across all the sub-districts for the month. A score is then assigned to each feature based on the z-score binning method. To obtain the final hazard score, the arithmetic mean of the individual factor scores is taken and rounded to the nearest integer.
 
 ## Vulnerability
 
-Vulnerability is a measure of the resilience of a population, and indicates the actual impact of flood as experienced by the population. This resilience is influenced by the socio-economic conditions, infrastructure facilities present and the actual losses and damages due to disaster events.
+Vulnerability is a measure of the resilience of a population, and indicates the actual impact of flood as experienced by the population. This resilience is influenced by socio-economic conditions, infrastructure facilities present, and the actual losses and damages due to disaster events. The risk model expects three indicator categories:
 
-### Vulnerability Data Sources
+- **Infrastructure**: facility counts and lengths (`schools_count`, `health_centres_count`, `rail_length`, `road_length`), and household-level service access (electricity, piped water, sanitation, net sown area).
+- **Demographic**: indicators such as `mean_sexratio` and `sum_aged_population`.
+- **Losses and damages**: reported impact — population affected, lives lost, crop area damaged, roads/bridges/embankments damaged. Typically sourced directly from the relevant disaster-management authority.
 
-- **Infrastructure**: For the indicators `schools_count`, `health_centres_count`, `rail_length`, and `road_length`, data is extracted from BharatMaps ArcGIS REST Server. Other infrastructure indicators are derived from the Mission Antyodaya dataset including: `Net sown area in hectares`, `average daily electricity availability in hours`, `Percentage of households without sanitation facilities` and `Percentage of households with piped water facilities`.
-- **Demographic**: Indicators include `mean_sexratio` and `sum_aged_population`, estimated using the UN WorldPOP's population dataset.
-- **Losses and Damages**: All losses and damages indicators are received directly from the State Disaster Management Authorities. In the case of Assam, this data is scraped from DRIMS reports.
+See [Data sources → Vulnerability variables](data-ingestion.md#vulnerability-variables) and [Damage and losses](data-ingestion.md#damage-and-losses) for the inputs used by the Assam reference deployment.
 
-### Vulnerability Factor Score
+### Factor score
 
 To calculate the Vulnerability factor score, a method known as **Data Envelopment Analysis (DEA)** is utilized. DEA calculates an "efficiency score" for each spatial unit based on its ability to minimize losses and damages given its available infrastructure and vulnerable population.
 
@@ -113,16 +99,13 @@ The following transformations are made before running the DEA model:
 
 The DEA model is then run using **PuLP with the open-source CBC solver** (Constant Returns to Scale, input-oriented). The efficiency scores output by the model are classified into 5 vulnerability classes using the **Fisher-Jenks Natural Breaks** algorithm, which minimises within-class variance. Classification is reversed — high efficiency maps to low vulnerability (class 1); low efficiency maps to high vulnerability (class 5).
 
-## Coping Capacity / Government Response
+## Coping capacity / Government response
 
-Coping Capacity is indicative of the resources available to a revenue circle / tehsil to be able to respond to, or minimize the losses caused due to flood events.
+Coping capacity is indicative of the resources available to a sub-district to respond to, or minimize the losses caused by, flood events. The risk model expects financial-allocation indicators — typically tender awards and disaster-relief funds — geocoded to the sub-district and broken down by scheme or category, timestamped to the month.
 
-### Data Sources
+See [Data sources → Government response](data-ingestion.md#government-response) for the inputs used by the Assam reference deployment.
 
-- **E-tenders**: Tenders scraped from each state's GEPNiC platform. The scraped tenders are analyzed and classified into different categories depending on tender sources and usage, and geocoded to the relevant district / revenue circle. Indicators include: `total_tender_awarded_value`, `SOPD_tenders_awarded_value`, `SDRF_tenders_awarded_value`, `RIDF_tenders_awarded_value`, `LTIF_tenders_awarded_value`, `CIDF_tenders_awarded_value`, `Preparedness Measures_tenders_awarded_value`, `Immediate Measures_tenders_awarded_value` and `Others_tenders_awarded_value`.
-- **State Disaster Relief Funds**: Funds sanctioned by the state to districts for various flood preparedness and response measures, manually scraped from the annual SEC meeting minutes.
-
-### Coping Capacity Factor Score
+### Factor score
 
 For each indicator category, the cumulative sum of the values of tenders received in that financial year up to that point in time is calculated, and the range of values is normalized using min-max scaler. A final "government response" score is assigned using a modified z-score binning method (higher tender value = lower risk score):
 
@@ -134,9 +117,9 @@ For each indicator category, the cumulative sum of the values of tenders receive
 | `response['sum'] > mean + 2*std & <= mean + 3*std` | 2 |
 | `response['sum'] > mean + 3*std` | 1 |
 
-## Final Flood Risk Score
+## Final flood risk score
 
-The final flood risk score is calculated for each revenue circle / tehsil using a multi-criteria decision making method called **TOPSIS** (Technique for Order of Preference by Similarity to Ideal Solution).
+The final flood risk score is calculated for each sub-district using a multi-criteria decision making method called **TOPSIS** (Technique for Order of Preference by Similarity to Ideal Solution).
 
 Before running the TOPSIS model, weights are assigned to each factor type based on its importance to the final risk score. The weightages are defined using the document "Disaster Risk and Resilience in India" drafted by the Ministry of Home Affairs and UNDP:
 
@@ -146,28 +129,24 @@ Before running the TOPSIS model, weights are assigned to each factor type based 
 
 These weights are configured in `topsis_config.toml` and can be adjusted without editing any code, to reflect local context or policy priorities.
 
-TOPSIS takes the individual factor scores and corresponding weightages as inputs. It works by defining an ideal solution and a non-ideal solution based on the factor scores, and computing the similarity of each individual RC's factor score matrix to the ideal and non-ideal solution. The final risk score is generated by binning TOPSIS output into categories from 1-5 based on their relative scores.
+TOPSIS takes the individual factor scores and corresponding weightages as inputs. It works by defining an ideal solution and a non-ideal solution based on the factor scores, and computing the similarity of each sub-district's factor score matrix to the ideal and non-ideal solution. The final risk score is generated by binning TOPSIS output into categories from 1-5 based on their relative scores.
 
-Once the TOPSIS score is calculated at a revenue circle / tehsil level, the factor scores and final risk score are calculated at the district level by grouping revenue circles within each month by their corresponding districts, and calculating the arithmetic mean of the revenue circle scores for each factor.
+Once the TOPSIS score is calculated at a sub-district level, the factor scores and final risk score are calculated at the district level by grouping sub-districts within each month by their corresponding districts, and calculating the arithmetic mean of the sub-district scores for each factor.
 
 The model produces per-factor output files and a final platform-ready file (`risk_score_district.csv`) containing both block-level and district-level rows. The complete output schema is documented in [`docs/data_dictionary.csv`](https://github.com/CivicDataLab/risk-score-model-generic/blob/main/docs/data_dictionary.csv).
 
-## Limitations and Responsible Use
+## Limitations and responsible use
 
 The following limitations should be considered when interpreting outputs from this model:
 
-- **Scores are relative, not absolute.** All factor scores and the composite risk score are computed relative to other revenue circles within the same monthly dataset. A score of 1 (low risk) does not indicate absence of risk — it indicates lower risk than peers in that period.
+- **Scores are relative, not absolute.** All factor scores and the composite risk score are computed relative to other sub-districts within the same monthly dataset. A score of 1 (low risk) does not indicate absence of risk — it indicates lower risk than peers in that period.
 - **The model is not a forecast.** It reflects observed conditions and historical data. It should not be used to predict future flood events.
-- **Data staleness.** Some inputs have not been updated recently: Mission Antyodaya figures are from 2020, NASADEM elevation data is from 2000, and national census-based figures have been extrapolated using WorldPop estimates since the 2011 census. Results in areas that have seen significant infrastructure or demographic change should be interpreted with caution.
-- **Low-risk classifications must not be used to justify withdrawing services.** A low vulnerability or risk score reflects relative conditions across the dataset; it does not mean a revenue circle is safe or that services can be reduced.
-- **DEA efficiency scores are sensitive to the composition of the peer group.** Adding or removing revenue circles from the dataset will change the efficiency frontier and therefore shift scores.
+- **Data staleness.** Outputs are only as fresh as their inputs. Sources with infrequent updates (one-time surveys, terrain models, census-extrapolated population figures) can lag real conditions by years. Adopters should publish the vintage of each input alongside the scores; results in areas that have seen significant infrastructure or demographic change since the most recent update should be interpreted with caution. See [Data sources](data-ingestion.md) for the vintages used by the Assam reference deployment.
+- **Low-risk classifications must not be used to justify withdrawing services.** A low vulnerability or risk score reflects relative conditions across the dataset; it does not mean a sub-district is safe or that services can be reduced.
+- **DEA efficiency scores are sensitive to the composition of the peer group.** Adding or removing sub-districts from the dataset will change the efficiency frontier and therefore shift scores.
 
 For full guidance on responsible use, see [`RESPONSIBLE_DATA_USE.md`](https://github.com/CivicDataLab/risk-score-model-generic/blob/main/RESPONSIBLE_DATA_USE.md) in the model repository.
 
-## License
-
-The risk score model source code is licensed under the [GNU Affero General Public License v3.0 (AGPL-3.0)](https://github.com/CivicDataLab/risk-score-model-generic/blob/main/LICENSE). Sample and derived datasets produced by the model are released under [Creative Commons Attribution 4.0 International (CC-BY 4.0)](https://creativecommons.org/licenses/by/4.0/), unless a more restrictive licence applies to a specific upstream source, in which case the upstream licence governs that file.
-
-## DPG Compliance
+## DPG compliance
 
 This project is submitted as a Digital Public Good. A full self-assessment mapping the project to all nine indicators of the [DPG Standard](https://digitalpublicgoods.net/standard/) is available in [`docs/dpg.md`](https://github.com/CivicDataLab/risk-score-model-generic/blob/main/docs/dpg.md) in the model repository.

@@ -5,22 +5,22 @@ Welcome to the documentation for the Intelligent Data Solution for Disaster Risk
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents
+   :caption: Introduction
 
    overview
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Data Sources
-
-   datasources/data-ingestion
-   datasources/data-model
 
 .. toctree::
    :maxdepth: 2
    :caption: Architecture
 
    architecture/overview
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Risk model
+
+   datasources/data-model
+   datasources/data-ingestion
 
 .. toctree::
    :maxdepth: 2

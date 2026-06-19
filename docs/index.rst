@@ -31,6 +31,8 @@ Welcome to the documentation for the Intelligent Data Solution for Disaster Risk
    platform/data-management
    platform/dataspace
    platform/qa-automation
+   platform/contributing
+   platform/development
 
 
 Indices and tables

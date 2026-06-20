@@ -13,7 +13,7 @@ This will help governments and communities better:
 
 ## The Platform
 
-[Intelligent Data Solution for Disaster Risk Reduction (IDS-DRR)](https://drr.open-contracting.in/en/analytics?indicator=risk-score&time-period=2023_08&boundary=district) joins up complex datasets spanning flood hazard, exposure, vulnerability and government contracts. This easy-to-use and easy-to-understand data tool/platform, complete with an interactive map, filters and tailored reports (down to the smallest administrative unit) makes it easier for decision-makers to identify and prioritize the right interventions that can minimize the impact of floods on the most vulnerable communities.
+[Intelligent Data Solution for Disaster Risk Reduction (IDS-DRR)](https://drr.open-contracting.in) joins up complex datasets spanning flood hazard, exposure, vulnerability and government contracts. This easy-to-use and easy-to-understand data tool/platform, complete with an interactive map, filters and tailored reports (down to the smallest administrative unit) makes it easier for decision-makers to identify and prioritize the right interventions that can minimize the impact of floods on the most vulnerable communities.
 
 Decision makers will be able to see, at-a-glance, which communities are most vulnerable, where the most urgent interventions are needed and what investments have been made in the past. It will help them identify potential gaps or mismatches between need and spending.
 

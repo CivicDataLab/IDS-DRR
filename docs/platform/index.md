@@ -87,7 +87,7 @@ The platform is a stock Django + Next.js + PostgreSQL/PostGIS + Redis stack; a p
 ## Privacy, accessibility, and security
 
 - **Privacy**: The platform processes only **public administrative data**, no PII. Analytics (Google Analytics, Hotjar) are off by default; each requires an explicit environment-variable opt-in per deployment. The DataSpace integration, when enabled, can host published datasets but inherits whatever privacy posture that service is configured for.
-- **Accessibility**: Built with accessible component primitives ([opub-ui](https://www.npmjs.com/package/opub-ui), [react-aria](https://react-spectrum.adobe.com/react-aria/)). Keyboard navigation and ARIA semantics are part of the component library's contract. Choropleth maps include a legend and offer a tabular view of the same data.
+- **Accessibility**: Built with accessible component primitives ([opub-ui](https://www.npmjs.com/package/opub-ui), [react-aria](https://react-aria.adobe.com)). Keyboard navigation and ARIA semantics are part of the component library's contract. Choropleth maps include a legend and offer a tabular view of the same data.
 - **Security**: Report vulnerabilities to <info@civicdatalab.in>. Component secrets (database password, Django secret key, Sentry tokens) live in environment variables, never in `config.toml` or the branding package.
 - **License**: All components are licensed under [GNU Affero General Public License v3 (AGPL-3.0)](https://www.gnu.org/licenses/agpl-3.0.html). Each component repository includes its own `LICENSE` file. Deployments that customise the code and offer it as a service must make their modifications available under the same terms.
 

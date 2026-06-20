@@ -232,7 +232,7 @@ The full set of variables you can set in `.env.local` (e.g. to point at producti
 |----------|-------------|
 | `NEXT_PUBLIC_GOOGLE_ANALYTICS_APP_ID` | [Google Analytics](https://analytics.google.com/) measurement ID. If unset, the Google Analytics script is not loaded. |
 | `NEXT_PUBLIC_HOTJAR_ID` | [Hotjar](https://www.hotjar.com/) site ID. If unset, the Hotjar script is not loaded. |
-| `GOOGLE_SITE_VERIFICATION` | [Google Search Console](https://search.google.com/search-console) verification token. Rendered as a `<meta>` tag. |
+| `GOOGLE_SITE_VERIFICATION` | [Google Search Console](https://search.google.com/search-console/about) verification token. Rendered as a `<meta>` tag. |
 
 ### Sentry
 

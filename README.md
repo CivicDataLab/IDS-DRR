@@ -7,7 +7,7 @@
 
 The platform was initially built for Assam, India, as a 4-year pilot and has since been designed to be replicable for other regions.
 
-> 🌐 **Live platform:** [drr.open-contracting.in](https://drr.open-contracting.in/en/analytics?indicator=risk-score&time-period=2023_08&boundary=district)
+> 🌐 **Live platform:** [drr.open-contracting.in](https://drr.open-contracting.in)
 > 📖 **Full documentation:** [ids-drr.readthedocs.io](https://ids-drr.readthedocs.io/en/latest/)
 
 ---

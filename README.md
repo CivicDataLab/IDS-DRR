@@ -130,12 +130,6 @@ We welcome contributions. See the [Contributing](https://ids-drr.readthedocs.io/
 
 ---
 
-## Partners
-
-This 4-year project is led by **[CivicDataLab](https://civicdatalab.in/)** and **[Open Contracting Partnership](https://www.open-contracting.org/)**, focused on improving disaster risk reduction processes in India. Datasets and risk-score methodology were developed in collaboration with the **Assam State Disaster Management Authority** and the **Himachal Pradesh State Disaster Management Authority**. It is supported by **The Rockefeller Foundation** and the **Patrick J. McGovern Foundation**.
-
----
-
 ## License
 
 This project is licensed under the [GNU Affero General Public License v3.0](LICENSE).

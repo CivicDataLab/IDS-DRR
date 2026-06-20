@@ -1,15 +1,13 @@
-# Architecture overview
+# Data lifecycle
 
-IDS-DRR's end-to-end flow spans data sourcing, risk modelling, the platform itself, and (optionally) publishing.
-
-## Data flow
+IDS-DRR's end-to-end lifecycle spans data sourcing, risk modelling, the platform itself, and publishing.
 
 1. **Identify**: Determine the required data, sources, and variables.
 2. **Collect**: Gather raw data via APIs, satellite imagery, and government portals.
 3. **Process**: Clean, transform, and standardize raw inputs into per-region indicator CSVs.
-4. **Model**: Run the [risk-score model](https://github.com/CivicDataLab/risk-score-model-generic) over those CSVs to produce per-administrative-unit factor scores. See [Risk-scoring methodology](../datasources/data-model.md).
-5. **Analyze**: The [Data Management API](../platform/data-management.md) ingests the model outputs and serves them via GraphQL.
-6. **Front-end**: The [Frontend](../platform/frontend.md) renders interactive maps, dashboards, and reports.
+4. **Score**: Run the [risk model](../datasources/data-model.md) over those CSVs to produce per-administrative-unit factor scores.
+5. **Serve**: The [Data Management API](../platform/data-management.md) ingests the model outputs and serves them via GraphQL.
+6. **Visualize**: The [Frontend](../platform/frontend.md) renders interactive maps and dashboards over those GraphQL queries.
 7. **Publish** *(optional)*: The [DataSpace Backend](../platform/dataspace.md) hosts a dataset catalog and chart-generation API.
 8. **List** *(optional)*: The frontend's `/datasets` routes browse and search that catalog.
 

@@ -1,16 +1,16 @@
 # Data sources
 
-This page documents the data sources that feed the IDS-DRR [risk model](data-model.md). The scripts used to acquire, clean, and join these sources are maintained in the companion repository [CivicDataLab/flood-data-ecosystem-generic](https://github.com/CivicDataLab/flood-data-ecosystem-generic), which produces the `MASTER_VARIABLES.csv` file consumed by the modelling pipeline. The modelling layer itself is maintained in [CivicDataLab/risk-score-model-generic](https://github.com/CivicDataLab/risk-score-model-generic).
+This page documents the data sources that feed the IDS-DRR [risk model](data-model.md). The scripts used to acquire, clean, and join these sources are maintained in the companion repository, [flood-data-ecosystem-generic](https://github.com/CivicDataLab/flood-data-ecosystem-generic), which produces the `MASTER_VARIABLES.csv` file consumed by the risk model.
 
 Each source's raw data is stored before processing to required formats:
 
-1. **Data Classifier**: The raw datasets are then transformed into input variables for the statistical model. These input variables are calculated at the sub-district level (the lowest administrative unit imported for the deployment).
+1. **Data Classifier**: The raw datasets are transformed into input variables for the statistical model. These input variables are calculated at the sub-district level (the lowest administrative unit in a deployment).
 2. **Data Pipeline**: The data is processed through a series of steps (data pipeline) to be used by different components in the system.
-3. **Data Update**: The updation of data is achieved by setting up data pipelines scheduled to run on different intervals based on the data source. Some pipelines update data on a near real time basis.
+3. **Data Update**: The updating of data is achieved by setting up data pipelines scheduled to run on different intervals based on the data source. Some pipelines update data on a near real time basis.
 
-## Reference deployment: Assam, India
+## Reference deployment
 
-The tables below list the data sources used by the Assam (India) reference deployment. They are **illustrative** — other regions will use different sources appropriate to their context. The risk-model methodology itself is generic; only the inputs change.
+The tables below list the data sources used by the Assam reference deployment. They are **illustrative** — other regions will use different sources appropriate to their context. The risk-model methodology itself is generic; only the inputs change.
 
 In Assam, the sub-district level is the **revenue circle**, which is the unit of decision making for the Assam State Disaster Management Authority (ASDMA).
 

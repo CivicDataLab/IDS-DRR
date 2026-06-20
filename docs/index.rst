@@ -1,23 +1,24 @@
-IDS-DRR Documentation
-======================
+Intelligent Data Solution for Disaster Risk Reduction
+=====================================================
 
-Welcome to the documentation for the Intelligent Data Solution for Disaster Risk Reduction (IDS-DRR).
+Where to start
+--------------
+
+- **New here?** Read the :doc:`Introduction <overview>`.
+- **Adopting IDS-DRR for a new region?** See `Localizing IDS-DRR <platform/index.html#localizing-ids-drr>`_.
+- **Looking for the methodology?** See the :doc:`Risk model <datasources/data-model>`.
+- **Contributing code?** See the :doc:`Development <platform/development>` page.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Introduction
+   :caption: Get started
 
    overview
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Architecture
-
    architecture/overview
 
 .. toctree::
    :maxdepth: 2
-   :caption: Risk model
+   :caption: Methodology
 
    datasources/data-model
    datasources/data-ingestion
@@ -33,10 +34,3 @@ Welcome to the documentation for the Intelligent Data Solution for Disaster Risk
    platform/qa-automation
    platform/contributing
    platform/development
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`search`

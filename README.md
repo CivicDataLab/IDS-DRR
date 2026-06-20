@@ -14,7 +14,7 @@ The platform was initially built for Assam, India, as a 4-year pilot and has sin
 
 ## Why this exists
 
-Floods are the most frequent natural disaster globally. In the last decade, 87% of disaster-related deaths in India were caused by floods. Yet disaster risk reduction decisions are often fragmented — information is siloed across agencies, in different systems and formats, making it hard to act quickly or equitably.
+Disaster risk reduction decisions are often fragmented — information is siloed across agencies, in different systems and formats, making it hard to act quickly or equitably.
 
 IDS-DRR breaks down those silos by bringing together:
 
@@ -23,7 +23,12 @@ IDS-DRR breaks down those silos by bringing together:
 - Infrastructure and loss & damage records
 - Government procurement and spending data
 
-The result is an interactive map and reporting tool that gives decision-makers a clear, evidence-based picture of risk down to the sub-district level.
+The result is an interactive map that gives decision-makers a clear, evidence-based picture of risk down to the sub-district level. The risk-scoring methodology is hazard-agnostic — the same framework supports floods, cyclones, droughts, earthquakes, and other natural hazards, with different input indicators per hazard.
+
+### Reference deployment: Assam flood pilot
+
+> [!NOTE]
+> The first deployment was a 4-year pilot in Assam, India, focused on **floods**. Floods are the most frequent natural disaster globally — in the last decade, 87% of disaster-related deaths in India were caused by floods. The Assam pilot has since been replicated with state authorities in Odisha, Uttar Pradesh, Bihar, and Himachal Pradesh.
 
 ---
 
@@ -34,12 +39,13 @@ This is the **root repository** for the IDS-DRR platform. It uses [git submodule
 ```
 IDS-DRR/
 ├── platform/
-│   ├── frontend/          # Next.js web application (submodule)
-│   └── data-management/   # Django + PostGIS (submodule)
-├── docs/                  # Sphinx documentation source
-├── user_docs/             # End-user documentation
-├── docker-compose.yml     # Full local development stack
-└── .readthedocs.yaml      # ReadTheDocs build config
+│   ├── frontend/                  # Next.js web application (submodule)
+│   ├── data-management/           # Django + PostGIS (submodule)
+│   └── risk-score-model-generic/  # Python risk-scoring model (submodule)
+├── docs/                          # Sphinx documentation source
+├── user_docs/                     # End-user documentation
+├── docker-compose.yml             # Full local development stack
+└── .readthedocs.yaml              # ReadTheDocs build config
 ```
 
 ### Related repositories
@@ -112,7 +118,7 @@ The DataSpace backend enables the analytics page's chart view and the datasets c
 ## Documentation
 
 - [Risk-scoring methodology](https://ids-drr.readthedocs.io/en/latest/datasources/data-model.html): SENDAI framework, factor scoring, DEA
-- [Architecture overview](https://ids-drr.readthedocs.io/en/latest/architecture/overview.html)
+- [Data lifecycle](https://ids-drr.readthedocs.io/en/latest/architecture/overview.html)
 - [Platform overview](https://ids-drr.readthedocs.io/en/latest/platform/): components, localization, deployment
 - [Adopting the platform for a new region](https://ids-drr.readthedocs.io/en/latest/platform/#localizing-ids-drr)
 

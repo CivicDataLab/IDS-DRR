@@ -15,6 +15,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "myst_parser",
+    "sphinx_nefertiti",
 ]
 
 myst_heading_anchors = 3
@@ -28,5 +29,9 @@ source_suffix = {
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
-html_theme = "sphinx_rtd_theme"
+html_theme = "sphinx_nefertiti"
+html_theme_options = {
+    "style": "blue",
+    "show_powered_by": False,
+}
 html_static_path = ["_static"]

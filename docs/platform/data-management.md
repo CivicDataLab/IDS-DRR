@@ -1,23 +1,23 @@
 # Data Management API
 
-The Data Management component provides the backend APIs and data management layer for the IDS-DRR platform.
+The Data Management component provides the backend APIs and data management layer for IDS-DRR.
 
 **Repository**: [IDS-DRR-Data-Management](https://github.com/CivicDataLab/IDS-DRR-Data-Management)
 
 ## Features
 
-- **Data Storage**: PostGIS-enabled PostgreSQL database for storing processed data, risk scores, and geographical boundaries
+- **Data ingestion**: Django management commands for importing geographical and indicator data
+- **Data storage**: PostGIS-enabled PostgreSQL database for administrative boundaries, indicator definitions, and per-period indicator values (factor and risk scores)
+- **Geographical data**: Support for a "state" container with district and sub-district administrative levels beneath it
+- **API endpoints**: GraphQL APIs (via Strawberry) for frontend data access
 - **Caching**: Redis for caching query results (maps, tables, time trends, indicators)
-- **API Endpoints**: GraphQL APIs (via Strawberry) for frontend data access
-- **Data Ingestion**: Django management commands for importing geographical and indicator data
-- **Geographical Data**: Support for states, districts, revenue circles, sub-districts, blocks, and tehsils
 
 ## Tech stack
 
 - **Framework**: Django 4.2
+- **API**: Strawberry GraphQL
 - **Database**: PostgreSQL with PostGIS extension
 - **Cache**: Redis
-- **API**: Strawberry GraphQL
 - **Server**: Uvicorn (ASGI)
 - **Containerization**: Docker & Docker Compose
 

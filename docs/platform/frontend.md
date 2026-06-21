@@ -1,15 +1,15 @@
 # Frontend
 
-The IDS-DRR Frontend is the user-facing web application that provides interactive maps and dashboards for disaster risk reduction decision-making.
+The Frontend component is the user-facing web application that provides interactive maps and dashboards for disaster risk reduction decision-making.
 
 **Repository**: [IDS-DRR-Frontend](https://github.com/CivicDataLab/IDS-DRR-Frontend)
 
 ## Features
 
-- **Interactive Maps**: Visualize flood risk scores, hazard, exposure, vulnerability, and coping capacity at district and sub-district levels
-- **Time-based Filtering**: View data across different time periods (monthly)
-- **Boundary Selection**: Drill down from district to sub-district level
-- **Indicator Selection**: Switch between different risk factors and indicators
+- **Interactive maps**: Visualize the overall risk score and per-factor scores (hazard, exposure, vulnerability, coping capacity) at district and sub-district levels
+- **Time-based filtering**: View data across different time periods (monthly)
+- **Boundary selection**: Drill down from district to sub-district level
+- **Indicator selection**: Switch between different risk factors and indicators
 
 ## Tech stack
 
@@ -46,7 +46,7 @@ The IDS-DRR Frontend is the user-facing web application that provides interactiv
    npm install --force
    ```
 
-   `--force` is required to tolerate existing peer-dependency warnings from the React 19 / Next.js 15 ecosystem.
+   `--force` is required to tolerate peer-dependency warnings from the React 19 / Next.js 15 ecosystem.
 
 4. Run the dev server:
 
@@ -59,7 +59,7 @@ The repository ships `.env.development` with localhost defaults that Next.js loa
 | Variable | Points at |
 |---|---|
 | `DATA_MANAGEMENT_LAYER_URL`, `NEXT_PUBLIC_DATA_MANAGEMENT_LAYER_URL` | The [Data Management API](data-management.md), which serves analytics maps, risk scores, and indicators. |
-| `BACKEND_URL`, `NEXT_PUBLIC_BACKEND_URL` | A [DataSpace Backend](https://github.com/CivicDataLab/DataSpaceBackend) instance, which serves the datasets catalog and chart visualisations. Optional. See [DataSpace Integration](dataspace.md) for which features it unlocks and how map charts are wired up. |
+| `BACKEND_URL`, `NEXT_PUBLIC_BACKEND_URL` | A [DataSpace Backend](https://github.com/CivicDataLab/DataSpaceBackend) instance, which serves the datasets catalog and chart visualisations. Optional. See [DataSpace Integration](dataspace.md) for which features it unlocks and how map charts on dataset pages are wired up. |
 
 ## Configuration
 
@@ -73,7 +73,9 @@ The frontend reads its deployment-specific content (states list, branding assets
 }
 ```
 
-By default that's the empty in-repo stub in the frontend's `branding-stub/`; the app builds and runs, but renders placeholder defaults (no states, no resources, no stories). Each real deployment replaces the stub with its own branding package.
+By default that's the empty in-repo stub in the frontend's `branding-stub/`; the app builds and runs, but renders placeholder defaults (no states, no resources, no stories).
+
+Each real deployment replaces the stub with its own branding package.
 
 ### Branding package layout
 
@@ -148,7 +150,7 @@ Re-apply after any subsequent `npm install` or `npm ci`, as those revert `node_m
 
 #### Docker Compose
 
-The [docker-compose.yml](https://github.com/CivicDataLab/IDS-DRR/blob/main/docker-compose.yml) bind-mounts the entire frontend source tree (`./platform/frontend:/app`), so `branding-stub/` resolves to the in-repo stub by default. To swap in your own branding without rebuilding the image, add a new volume mounted at `/app/branding-stub`:
+The [docker-compose.yml](https://github.com/CivicDataLab/IDS-DRR/blob/main/docker-compose.yml) file bind-mounts the entire frontend source tree (`./platform/frontend:/app`), so `branding-stub/` resolves to the in-repo stub by default. To swap in your own branding without rebuilding the image, add a new volume mounted at `/app/branding-stub`:
 
 ```{code-block} yaml
 :emphasize-lines: 7
@@ -168,7 +170,7 @@ The added mount overrides the stub; Webpack resolves `ids-drr-branding` through 
 
 The frontend uses [next-intl](https://next-intl.dev/) for translations. Two sources of messages feed into it:
 
-- **Frontend-owned** messages live under the frontend's `locales/<locale>.json`: defaults for UI chrome, error messages, navigation labels.
+- **Frontend-owned** messages live under the frontend's `locales/<locale>.json` (defaults for UI chrome, error messages, navigation labels).
 - **Deployment-owned** messages live in the branding package under `src/messages/<locale>.json`, plugged in via `config.messages`. Branding messages can introduce locales the frontend doesn't ship, override the frontend's defaults for any key, or both.
 
 To add a new locale to a deployment, create `src/messages/<locale>.json` in the branding package and add the locale to `config.locales` (and, if desired, `config.defaultLocale`).
@@ -202,7 +204,14 @@ The endpoint must respond with `Content-Type: application/pdf` (and ideally a `C
 
 For a worked example, see [ids-drr-india-plugin](https://github.com/CivicDataLab/ids-drr-india-plugin): a Django app that replaces the Data Management API's empty `plugin-stub` to add a `/report` endpoint. For more, see [Data Management → PDF Report (opt-in)](data-management.md#pdf-report-opt-in).
 
-If the frontend flag is on but no backend implementation is installed, the button renders, but clicks return 404.
+If the frontend flag is on but no backend implementation is installed, the “Download Report” button renders, but clicks return 404.
+
+### Contributor reference
+
+For contributor-oriented detail, see the frontend repo's README:
+
+- [Where new code should live](https://github.com/CivicDataLab/IDS-DRR-Frontend#how-the-branding-package-works): generic feature vs deployment-specific content (frontend vs branding).
+- [Available scripts](https://github.com/CivicDataLab/IDS-DRR-Frontend#available-scripts): `npm run knip`, `build:tokens`, `generate`, etc.
 
 ## Environment variables
 
@@ -223,7 +232,7 @@ The full set of variables you can set in `.env.local` (e.g. to point at producti
 |----------|-------------|
 | `NEXT_PUBLIC_GOOGLE_ANALYTICS_APP_ID` | [Google Analytics](https://analytics.google.com/) measurement ID. If unset, the Google Analytics script is not loaded. |
 | `NEXT_PUBLIC_HOTJAR_ID` | [Hotjar](https://www.hotjar.com/) site ID. If unset, the Hotjar script is not loaded. |
-| `GOOGLE_SITE_VERIFICATION` | [Google Search Console](https://search.google.com/search-console) verification token. Rendered as a `<meta>` tag. |
+| `GOOGLE_SITE_VERIFICATION` | [Google Search Console](https://search.google.com/search-console/about) verification token. Rendered as a `<meta>` tag. |
 
 ### Sentry
 

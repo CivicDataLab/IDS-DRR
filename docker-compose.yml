@@ -35,15 +35,33 @@ services:
       timeout: 5s
   backend:
     build:
-      context: ./platform/data-management
+      # Context is ./platform/ (not just data-management/) so a sibling
+      # `ids-drr-plugin/` is reachable via the PLUGIN_PACKAGE build arg.
+      context: ./platform
+      dockerfile: data-management/Dockerfile
+      args:
+        CONTEXT_SUBDIR: data-management
+        PLUGIN_PACKAGE: ${PLUGIN_PACKAGE:-data-management/plugin-stub}
     restart: always
     container_name: "context_layer_Backend"
     # In production, use a uvicorn command. The current command enables auto-reload.
     #   uvicorn D4D_ContextLayer.asgi:application --host 0.0.0.0 --port 8000
     command: python manage.py runserver 0.0.0.0:8000
-    # In production, remove `volumes`, which currently mounts the source code for live editing.
+    # The first mount is source code for live editing; remove it in production.
+    # The second mount supplies the deployment-specific config.toml and its
+    # referenced asset files (GeoJSON, indicator/data CSVs). Paths in
+    # config.toml are resolved relative to its own directory. See
+    # docs/platform/data-management.md for the expected layout.
+    #
+    # The default points at ids-drr-plugin/, since for the IDS-DRR India
+    # deployment the plugin's source repo also ships its config.toml and
+    # data files (one mount serves both PLUGIN_PACKAGE and CONFIG_PATH).
+    # For deployments that don't ship a custom plugin (e.g. data-only),
+    # set BACKEND_CONFIG_DIR to wherever the deployment's config.toml
+    # lives and leave PLUGIN_PACKAGE at its default.
     volumes:
-      - ./platform/data-management:/code
+      - ./platform/data-management:/src/data-management
+      - ${BACKEND_CONFIG_DIR:-./platform/ids-drr-plugin}:/config:ro
     ports:
       - "8000:8000"
     env_file:
@@ -56,7 +74,15 @@ services:
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
       - REDIS_URL=redis://redis:6379/1
+      # WHITELIST_INDICATORS now lives at the top level of config.toml; the
+      # env var is kept for backwards compatibility only.
       - WHITELIST_INDICATORS=${WHITELIST_INDICATORS:-topsis-score}
+      # Location of the backend's config.toml inside the container. The
+      # default points at the bind-mounted directory above. Override via
+      # BACKEND_CONFIG_PATH on the host (e.g. in .env) — typically only
+      # needed when the deployment's config.toml has a non-default name
+      # or sits in a subdirectory of the mount source.
+      - CONFIG_PATH=${BACKEND_CONFIG_PATH:-/config/config.toml}
       # In production, set to "production".
       - DJANGO_ENV=${DJANGO_ENV:-development}
       # In production, set to a random string.
@@ -79,9 +105,15 @@ services:
   frontend:
     container_name: "context_layer_Frontend"
     build:
-      context: ./platform/frontend
-      # In production, remove `target`. This currently builds only through to the Dockerfile's dev stage. 
+      # Context is ./platform/ (not just frontend/) so a sibling
+      # `ids-drr-branding/` is reachable via the BRANDING_PACKAGE build arg.
+      context: ./platform
+      dockerfile: frontend/Dockerfile
+      # In production, remove `target`. This currently builds only through to the Dockerfile's dev stage.
       target: dev
+      args:
+        CONTEXT_SUBDIR: frontend
+        BRANDING_PACKAGE: ${BRANDING_PACKAGE:-frontend/branding-stub}
     restart: always
     # In production, remove `command` to use the Dockerfile's CMD. The current command enables hot reload.
     command: npm run dev
@@ -94,9 +126,17 @@ services:
       - DATA_MANAGEMENT_LAYER_URL=http://backend:8000
       # In production, set to your domain.
       - NEXT_PUBLIC_DATA_MANAGEMENT_LAYER_URL=${NEXT_PUBLIC_DATA_MANAGEMENT_LAYER_URL:-http://localhost:8000}
-    # In production, remove `volumes`, which currently mounts the source code for live editing.
+    # 1) source code for live editing (remove in production);
+    # 2) the branding package dir (default: the stub inside this repo)
+    #    bound onto /app/branding-stub so that
+    #    `node_modules/ids-drr-branding` (an npm-managed symlink to
+    #    ../branding-stub) resolves to the same tree at runtime as was
+    #    installed at build time. Deployment config and assets both
+    #    live inside the branding package; assets are bundled by
+    #    Next.js via TS imports rather than served from a public dir.
     volumes:
       - ./platform/frontend:/app
+      - ./platform/${BRANDING_PACKAGE:-frontend/branding-stub}:/app/branding-stub
       - /app/node_modules
       - /app/.next
     ports:
